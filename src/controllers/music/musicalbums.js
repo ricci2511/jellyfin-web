@@ -15,15 +15,14 @@ export default function (view, params, tabContent) {
     function playAll() {
         ApiClient.getItem(ApiClient.getCurrentUserId(), params.topParentId).then(function (item) {
             playbackManager.play({
-                items: [item]
+                items: [{ ...item, ...getQuery() }]
             });
         });
     }
 
     function shuffle() {
         ApiClient.getItem(ApiClient.getCurrentUserId(), params.topParentId).then(function (item) {
-            getQuery();
-            playbackManager.shuffle(item);
+            playbackManager.shuffle({ ...item, ...getQuery() });
         });
     }
 
@@ -175,6 +174,10 @@ export default function (view, params, tabContent) {
             itemsContainer.innerHTML = html;
             imageLoader.lazyChildren(itemsContainer);
             libraryBrowser.saveQueryValues(getSavedQueryKey(), query);
+
+            tabContent.querySelector('.btnPlayAll').classList.toggle('hide', result.TotalRecordCount < 1);
+            tabContent.querySelector('.btnShuffle').classList.toggle('hide', result.TotalRecordCount < 1);
+
             loading.hide();
             isLoading = false;
 

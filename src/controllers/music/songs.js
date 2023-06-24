@@ -151,7 +151,7 @@ export default function (view, params, tabContent) {
 
     function shuffle() {
         ApiClient.getItem(ApiClient.getCurrentUserId(), params.topParentId).then(function (item) {
-            playbackManager.shuffle(item);
+            playbackManager.shuffle({ ...item, ...getQuery(tabContent) });
         });
     }
 

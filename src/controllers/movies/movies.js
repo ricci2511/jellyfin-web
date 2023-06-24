@@ -34,7 +34,7 @@ export default function (view, params, tabContent, options) {
             ApiClient.getCurrentUserId(),
             params.topParentId
         ).then((item) => {
-            playbackManager.shuffle(item);
+            playbackManager.shuffle({ ...item, ...query });
         });
     }
 

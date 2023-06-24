@@ -1888,14 +1888,31 @@ class PlaybackManager {
                 } else if (firstItem.Type !== 'BoxSet') {
                     sortBy = 'SortName';
                 }
-                promise = getItemsForPlayback(serverId, mergePlaybackQueries({
+
+                const queryObj = {
                     ParentId: firstItem.Id,
-                    Filters: 'IsNotFolder',
                     Recursive: true,
                     // These are pre-sorted
                     SortBy: sortBy,
                     MediaTypes: 'Audio,Video'
-                }, queryOptions));
+                };
+
+                // Currently for some reason the server won't return any songs with the "IsFavorite" filter
+                // under "Music > Albums" screen, so omit it for now
+                if (firstItem.Filters && firstItem.IncludeItemTypes !== 'MusicAlbum') {
+                    queryObj.Filters = firstItem.Filters;
+                }
+
+                // Omit genres when playing individual albums, it's redundant and causes no songs to be returned from the server
+                if (firstItem.Genres && firstItem.Genres.length && firstItem.Type !== 'MusicAlbum') {
+                    queryObj.Genres = firstItem.Genres;
+                }
+
+                if (firstItem.Years) {
+                    queryObj.Years = firstItem.Years;
+                }
+
+                promise = getItemsForPlayback(serverId, mergePlaybackQueries(queryObj, queryOptions));
             } else if (firstItem.Type === 'Episode' && items.length === 1 && getPlayer(firstItem, options).supportsProgress !== false) {
                 promise = new Promise(function (resolve, reject) {
                     const apiClient = ServerConnections.getApiClient(firstItem.ServerId);
